@@ -26,11 +26,15 @@ class DoorTimerAdapter : public TimerClient {
  public:
   explicit DoorTimerAdapter(TimedDoor&);
   void Timeout();
+  
+  // Friend classes for testing
+  friend class TimedDoorIntegrationTest;
+  friend class TimedDoorIntegrationTest_NoExceptionWhenDoorClosed_Test;
 };
 
 class TimedDoor : public Door {
  private:
-  DoorTimerAdapter * adapter;
+  DoorTimerAdapter* adapter;
   int iTimeout;
   bool isOpened;
  public:
@@ -38,15 +42,21 @@ class TimedDoor : public Door {
   bool isDoorOpened();
   void unlock();
   void lock();
-  int  getTimeOut() const;
+  int getTimeOut() const;
   void throwState();
+  
+  // For testing purposes
+  DoorTimerAdapter* getAdapter() { return adapter; }
+  friend class TimedDoorIntegrationTest;
+  friend class TimedDoorWithMockTimer;
 };
 
 class Timer {
-  TimerClient *client;
-  void sleep(int);
+ protected:  // Changed from private to protected
+  TimerClient* client;
+  virtual void sleep(int);  // Added virtual keyword
  public:
-  void tregister(int, TimerClient*);
+  virtual void tregister(int, TimerClient*);
 };
 
 #endif  // INCLUDE_TIMEDDOOR_H_
